@@ -7,6 +7,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
+#SBATCH --gres=gpu:1
 #SBATCH --mem=64gb
 #SBATCH --comment="LLM STUDY - Transformers"
 
@@ -15,14 +16,11 @@
 
 ## Container Settings
 #SBATCH --container-image=/purestorage/AILAB/AI_1/shhong/enroot_images/pytorch_2_5_1.sqsh
-#SBATCH --container-mounts=/purestorage/:/purestorage/
-#SBATCH --container-mounts=/purestorage/project/shhong/cache:/home/$USER/.cache
-#SBATCH --no-container-mounts-home
-#SBATCH --unbuffered
+#SBATCH --container-mounts=/purestorage/:/purestorage/,/purestorage/AILAB/AI_1/shhong/cache:/home/$USER/.cache
+#SBATCH --no-container-mount-home
 #SBATCH --container-writable
-#SBATCH --container-workdir=/purestorage/AILAB/AI_1/shhong/llm/
+#SBATCH --container-workdir=/purestorage/AILAB/AI_1/shhong/LLM/python_codes
 
-srun bash -c "
-pip install -r requirements.txt;
-python main.py;
-"
+## Run
+pip install -r requirements.txt
+python main.py

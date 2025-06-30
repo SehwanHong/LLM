@@ -1,14 +1,14 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 if __name__ == "__main__":
-    model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf", torch_dtype="auto", device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained("distillbert/distillgpt2", torch_dtype="auto", device_map="auto")
 
     print("[DEBUG] Model loaded")
     print(model)
 
     print("-" * 64)
 
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
+    tokenizer = AutoTokenizer.from_pretrained("distillbert/distillgpt2")
 
     print("[DEBUG] Tokenizer loaded")
     print(tokenizer)
