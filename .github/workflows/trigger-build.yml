@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '_posts/**'
+      - '!python_codes/**'
+      - '!scripts/**'
+      - '!requirements.txt'
 
 jobs:
   trigger:

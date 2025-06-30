@@ -23,4 +23,5 @@
 
 ## Run
 pip install -r requirements.txt
-python main.py
+python transformer_01.py
+python transformer_02.py
