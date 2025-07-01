@@ -1,6 +1,10 @@
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from datasets import load_dataset
 
+from transformers import DataCollatorWithPadding
+from transformers import TrainingArguments
+from transformers import Trainer
+
 if __name__ == "__main__":
     model = AutoModelForSequenceClassification.from_pretrained("distilbert/distilbert-base-uncased", torch_dtype="auto", device_map="auto")
     tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-uncased")
@@ -16,16 +20,12 @@ if __name__ == "__main__":
     print("[DEBUG] Tokenized dataset")
     print(dataset)
 
-    from transformers import DataCollatorWithPadding
-
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     print("[DEBUG] Data collator")
     print(data_collator)
 
     print("-" * 64)
-
-    from transformers import TrainingArguments
 
     training_args = TrainingArguments(
         output_dir="distilbert-rotten-tomatoes",
@@ -40,8 +40,6 @@ if __name__ == "__main__":
     print(training_args)
 
     print("-" * 64)
-
-    from transformers import Trainer
 
     trainer = Trainer(
         model=model,

@@ -24,4 +24,4 @@
 ## Run
 pip install -r requirements.txt
 python transformer_01.py
-accelerate launch python transformer_02.py
+accelerate launch --num_processes=16 python transformer_02.py
