@@ -49,7 +49,7 @@ Transfomer를 사용하기 위해서는 기본적으로 model과 tokenizer가 �
 ```python
 from transformers import AutoModelForCausalLM
 
-model = AutoModelForCausalLM.from_pretrained("distillbert/distillgpt2", torch_dtype="auto", device_map="auto")
+model = AutoModelForCausalLM.from_pretrained("distilbert/distilgpt2", torch_dtype="auto", device_map="auto")
 
 print(model)
 ```
@@ -100,7 +100,7 @@ Tokenizer를 불러오고 구조를 확인해 보자.
 ```python
 from transformers import AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained("distillbert/distillgpt2")
+tokenizer = AutoTokenizer.from_pretrained("distilbert/distilgpt2")
 
 print(tokenizer)
 ```
