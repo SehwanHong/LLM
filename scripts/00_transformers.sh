@@ -24,4 +24,5 @@
 ## Run
 pip install -r requirements.txt
 python transformer_01.py
-accelerate launch --num_processes=16 python transformer_02.py
+python generate_accelerate_config.py --output_file=accelerate_config.yaml
+accelerate launch --config_file=accelerate_config.yaml python transformer_02.py

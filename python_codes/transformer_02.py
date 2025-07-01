@@ -33,7 +33,11 @@ if __name__ == "__main__":
         per_device_train_batch_size=8,
         per_device_eval_batch_size=8,
         num_train_epochs=2,
-        push_to_hub=True,
+        push_to_hub=False,
+        logging_dir="logs",
+        logging_steps=10,
+        save_steps=10,
+        save_total_limit=2,
     )
 
     print("[DEBUG] Training arguments")
