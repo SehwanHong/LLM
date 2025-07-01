@@ -6,7 +6,7 @@ from transformers import TrainingArguments
 from transformers import Trainer
 
 if __name__ == "__main__":
-    model = AutoModelForSequenceClassification.from_pretrained("distilbert/distilbert-base-uncased", torch_dtype="auto", device_map="auto")
+    model = AutoModelForSequenceClassification.from_pretrained("distilbert/distilbert-base-uncased", torch_dtype="auto")
     tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-uncased")
     dataset = load_dataset("rotten_tomatoes")
 
@@ -38,6 +38,7 @@ if __name__ == "__main__":
         logging_steps=10,
         save_steps=10,
         save_total_limit=2,
+        local_rank=-1,
     )
 
     print("[DEBUG] Training arguments")
