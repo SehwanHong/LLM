@@ -23,4 +23,16 @@
 
 ## Run
 pip install -r requirements.txt
-python transformer_01.py
+
+# ------------------------------------------------------------------
+# [FIX] 단일 GPU/단일 프로세스 환경에서 WORLD_SIZE 등이 설정되지 않아
+# TrainingArguments가 분산 초기화 중 오류를 일으키는 문제 해결.
+# srun 자동 감지가 컨테이너 내부에서 불가능하므로 수동으로 지정.
+# ------------------------------------------------------------------
+export WORLD_SIZE=1
+export RANK=0
+export LOCAL_RANK=0
+export MASTER_ADDR="127.0.0.1"
+export MASTER_PORT=29500 # 임의의 비어있는 포트
+
+python transformer_02.py
