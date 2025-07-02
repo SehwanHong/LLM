@@ -2,7 +2,7 @@
 title: "Hugging Face Transformers Tutorial - 02"
 date: 2025-07-01
 layout: default   # 또는 page, default 등 테마에 따라
-tags: [transformers, huggingface, transformers-tutorial]
+tags: [transformers, huggingface, transformers-tutorial, llm]
 ---
 
 ## 1. Introduction
