@@ -7,10 +7,10 @@ from transformers import Trainer
 
 import math
 
-if __name__ == "__main__":
-    model = AutoModelForCausalLM.from_pretrained("distilbert/distilgpt2", torch_dtype="auto", device_map="auto")
+if __name__ == "__main__": 
+    model = AutoModelForCausalLM.from_pretrained("distilbert/distilgpt2", torch_dtype="auto")
     tokenizer = AutoTokenizer.from_pretrained("distilbert/distilgpt2")
-    eli5 = load_dataset("eli5_category", split="train[:5000]", trust_remote_code=True)
+    eli5 = load_dataset("eli5_category", split="train[:5000]")
 
     eli5 = eli5.train_test_split(test_size=0.2)
     
@@ -21,7 +21,15 @@ if __name__ == "__main__":
     print("-" * 64)
 
     def preprocess_function(examples): 
-        return tokenizer([" ".join(x) for x in examples["answers.text"]]) 
+        return tokenizer([" ".join(x) for x in examples["answers.text"]])
+
+    eli5 = eli5.flatten()
+
+    print(f"[DEBUG] ELI-5 Flatten")
+
+    print(f"eli5 flatten = {eli5}")
+
+    print("-" * 64)
     
     tokenized_eli5 = eli5.map(
         preprocess_function,
@@ -69,7 +77,7 @@ if __name__ == "__main__":
 
     print(f"[DEBUG] DataCollatorForLanguageModeling load")
 
-    print(f'{data_collator(lm_dataset["train"][:2])}')
+    print(f'{data_collator([lm_dataset["train"][i] for i in range(2)])}')
 
     print("-" * 64)
 
@@ -119,7 +127,7 @@ if __name__ == "__main__":
     print("-" * 64)
 
     print("[DEBUG] Text generation step by step")
-    inputs = tokenizer(prompt, return_tensors="pt").input_ids
+    inputs = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
     print(f"[DEBUG] Inputs: {inputs}")
 
     outputs = model.generate(inputs, max_new_tokens=50)
