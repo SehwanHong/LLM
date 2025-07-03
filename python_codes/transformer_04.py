@@ -1,4 +1,4 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForMaskedLM, AutoTokenizer
 from datasets import load_dataset
 from transformers import pipeline
 from transformers import DataCollatorForLanguageModeling
@@ -9,7 +9,7 @@ import torch
 import math
 
 if __name__ == "__main__": 
-    model = AutoModelForCausalLM.from_pretrained("distilbert/distilroberta-base", torch_dtype="auto")
+    model = AutoModelForMaskedLM.from_pretrained("distilbert/distilroberta-base", torch_dtype="auto")
     tokenizer = AutoTokenizer.from_pretrained("distilbert/distilroberta-base")
     eli5 = load_dataset("eli5_category", split="train[:5000]")
 
@@ -123,17 +123,22 @@ if __name__ == "__main__":
     text = "The Milky Way is a <mask> galaxy."
     generator = pipeline("fill-mask", model=model, tokenizer=tokenizer)
 
-    print(generator(text, top_k=5))
+    generated_result = generator(text, top_k=5)
+
+    for result in generated_result:
+        print(result)
 
     print("-" * 64)
 
     print("[DEBUG] Text generation step by step")
     inputs = tokenizer(text, return_tensors="pt").input_ids.to(model.device)
+    
+    print(inputs)
 
-    mask_token_index = torch.where(inputs["input_ids"] == tokenizer.mask_token_id)[1]
+    mask_token_index = torch.where(inputs == tokenizer.mask_token_id)[1]
     print(f"[DEBUG] Mask token index: {mask_token_index}")
 
-    logits = model(**inputs).logits
+    logits = model(inputs).logits
     mask_token_logits = logits[0, mask_token_index, :]
     top_5_tokens = torch.topk(mask_token_logits, 5, dim=1).indices[0].tolist()
 
