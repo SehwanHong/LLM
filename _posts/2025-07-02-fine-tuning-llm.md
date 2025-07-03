@@ -69,7 +69,7 @@ So the answer is 5.
 
 ## 3.1 모델의 가중치 값을 직접적으로 수정하면서 모델을 학습시키는 것
 
-![https://magazine.sebastianraschka.com/p/finetuning-large-language-models 에서 얻은 이미지](../assets/fine-tuning-llm/finetuning-architecture.png)
+![https://magazine.sebastianraschka.com/p/finetuning-large-language-models 에서 얻은 이미지](/assets/fine-tuning-llm/finetuning-architecture.png)
 
 ### 3.1.1 Feature-Based Approach (특징 기반 접근법)
 
@@ -155,7 +155,7 @@ Instruction Tuning은 사용자의 다양한 지시사항(Instruction)을 이해
 
 RLHF는 사용자의 피드백을 바탕으로 모델을 훈련시키는 방식이다.
 
-![Screenshot from the InstructGPT paper outlining the RLHF process](../assets/fine-tuning-llm/rlhf.png)
+![Screenshot from the InstructGPT paper outlining the RLHF process](/assets/fine-tuning-llm/rlhf.png)
 
 Instruction Tuning을 모두 마친 모델은 지시사항에 대하여 좋은 답변을 제공하지만, 사용자의 의도와 다른 답변을 제공하는 경우가 있다. 이러한 문제를 해결하기 위해서 RLHF를 사용하여 모델을 훈련시키는 방식이다.
 
