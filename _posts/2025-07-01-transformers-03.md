@@ -7,11 +7,11 @@ tags: [transformers, huggingface, transformers-tutorial, llm]
 
 ## 1. Introduction
 
-언어 모델을 훈련하는 방식은 크게 두 가지 방식이 있다. 하나는 Casual Language Model (CLM) 방식이고, 다른 하나는 Masked Language Model (MLM) 방식이다. 일단 이 두가지 방식을 간단하게 알아보자. 이 두가지 방식은 모델의 구조가 다르다.
+언어 모델을 훈련하는 방식은 크게 두 가지 방식이 있다. 하나는 Causal Language Model (CLM) 방식이고, 다른 하나는 Masked Language Model (MLM) 방식이다. 일단 이 두가지 방식을 간단하게 알아보자. 이 두가지 방식은 모델의 구조가 다르다.
 
-### 1.1 Casual Language Model (CLM)
+### 1.1 Causal Language Model (CLM)
 
-Casual Language Model (CLM) 방식은 문장을 넣어주면 그 다음 단어를 예측하는 방식이다. 예를 들어 문장을 넣어주면 그 다음 단어를 예측하는 방식이다.
+Causal Language Model (CLM) 방식은 문장을 넣어주면 그 다음 단어를 예측하는 방식이다. 예를 들어 문장을 넣어주면 그 다음 단어를 예측하는 방식이다.
 
 ```txt
 "Fly me to the moon, and let me play among the "
@@ -22,7 +22,7 @@ Casual Language Model (CLM) 방식은 문장을 넣어주면 그 다음 단어�
 "Fly me to the moon, and let me play among the stars"
 ```
 
-기본적으로 Casual Language Model (CLM) 모델은 Decoder-only 모델이다. 즉 transformer의 decoder 부분만 사용하는 모델이다.
+기본적으로 Causal Language Model (CLM) 모델은 Decoder-only 모델이다. 즉 transformer의 decoder 부분만 사용하는 모델이다.
 
 ### 1.2 Masked Language Model (MLM)
 
@@ -183,13 +183,13 @@ prompt = "Somatic hypermutation allows the immune system to"
 generator = pipeline("text-generation", model=model, tokenizer=tokenizer)
 ```
 
-드리고 다른 방식으로는 직접 모델에 넣어서 생성을 할 수 있다. 
+그리고 다른 방식으로는 직접 모델에 넣어서 생성을 할 수 있다. 
 ```python
 inputs = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
 outputs = model.generate(inputs, max_new_tokens=50)
 ```
 
-이 둘의 결과를 확인해 보면 아래와 같은 결과를 알고 있다.
+이 둘의 결과를 확인해 보면 아래와 같은 결과를 얻을 수 있다.
 
 ```txt
 ----------------------------------------------------------------
@@ -202,6 +202,6 @@ outputs = model.generate(inputs, max_new_tokens=50)
 Somatic hypermutation allows the immune system to detect and suppress the immune response. This is why the immune system is so sensitive to the presence of a certain type of immune system. This is why the immune system is so sensitive to the presence of a certain type of immune system. This is why
 ```
 
-`pipeline`{:.python}을 사용하면 더 좋은 결과를 생성할 수 있다. pipeline은 자동으로 적용되어 있기 때문에 따로 설정하지 않아도 되지만, 모델은 자동으로 적용이 되지 않아서 직접 설정해야 한다. 
+`pipeline`{:.python}을 사용하면 더 좋은 결과를 생성할 수 있다. 이는 pipeline에는 여러가지 조건들을 자동으로 적용해 반복을 줄이고 더 자연스러운 문장을 생성하기 때문이다. 하지만 모델은 자동으로 적용이 되지 않아서 직접 설정해야 한다. 
 
 [실행 코드 전체](https://github.com/sehwanhong/LLM/blob/main/python_codes/transformer_03.py)
