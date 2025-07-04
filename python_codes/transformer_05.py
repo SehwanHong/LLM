@@ -116,7 +116,7 @@ if __name__ == "__main__":
                 total_eval_loss += loss.item()
             
             avg_eval_loss = total_eval_loss / len(eval_dataloader)
-            print(f"[EPOCH {epoch:03i}] Average Evaluation Loss: {avg_eval_loss}")
+            print(f"[EPOCH {epoch:03d}] Average Evaluation Loss: {avg_eval_loss}")
 
     print("-" * 64)
 
