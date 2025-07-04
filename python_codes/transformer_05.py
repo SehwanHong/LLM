@@ -6,7 +6,9 @@ from transformers import TrainingArguments
 from transformers import Trainer
 
 import torch
+from torch.utils.data import DataLoader
 
+from tqdm import tqdm
 import math
 
 if __name__ == "__main__": 
@@ -85,25 +87,36 @@ if __name__ == "__main__":
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
 
-    for i in range(10):
-        print(f"[DEBUG] Training {i} epoch")
+    train_dataloader = DataLoader(lm_dataset["train"], shuffle=True, collate_fn=data_collator, batch_size=8)
+    eval_dataloader = DataLoader(lm_dataset["test"], collate_fn=data_collator, batch_size=8)
+
+    for epoch in range(10):
+        print(f"[DEBUG] Training {epoch} epoch")
 
         model.train()
-
-        for batch in data_collator(lm_dataset["train"]):
+        progress_bar = tqdm(train_dataloader, desc=f"Epoch {epoch:02d} Train ")
+        for batch in progress_bar:
+            batch = {k: v.to(model.device) for k, v in batch.items()}
             outputs = model(**batch)
             loss = outputs.loss
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-
+        
         model.eval()
-
+        
         with torch.no_grad():
-            for batch in data_collator(lm_dataset["test"]):
+            total_eval_loss = 0
+
+            progress_bar = tqdm(eval_dataloader, desc=f"Epoch {epoch:02d} Eval ")
+            for batch in eval_dataloader:
+                batch = {k: v.to(model.device) for k, v in batch.items()}
                 outputs = model(**batch)
-                loss = outputs.loss 
-                print(f"Loss: {loss.item()}")
+                loss = outputs.loss
+                total_eval_loss += loss.item()
+            
+            avg_eval_loss = total_eval_loss / len(eval_dataloader)
+            print(f"[EPOCH {epoch:03i}] Average Evaluation Loss: {avg_eval_loss}")
 
     print("-" * 64)
 
