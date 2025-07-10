@@ -86,11 +86,6 @@ if __name__ == "__main__":
 
     print("-" * 64)
 
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B-Instruct")
-
-    def tokenize_function(examples):
-        return tokenizer(examples["messages"])
-    
 
     # Hugging Face model id
     model_id = "Qwen/Qwen2-VL-7B-Instruct" 
@@ -169,9 +164,7 @@ if __name__ == "__main__":
         args=args,
         train_dataset=dataset,
         data_collator=collate_fn,
-        dataset_text_field="", # needs dummy value
         peft_config=peft_config,
-        tokenizer=processor.tokenizer,
     )
 
     print("[DEBUG] SFTTrainer")
