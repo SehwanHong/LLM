@@ -15,6 +15,16 @@ from trl import SFTConfig, SFTTrainer
 from transformers import Qwen2VLProcessor
 from qwen_vl_utils import process_vision_info
 
+
+PROMPT= """Create a Short Product description based on the provided ##PRODUCT NAME## and ##CATEGORY## and image. 
+Only return description. The description should be SEO optimized and for a better mobile search experience.
+ 
+##PRODUCT NAME##: {product_name}
+##CATEGORY##: {category}"""
+
+
+SYSTEM_MESSAGE = "You are an expert product description writer for Amazon."
+
 # Create a data collator to encode text and image pairs
 def collate_fn(examples):
     # Get the texts and images, and apply the chat template
@@ -40,25 +50,18 @@ def collate_fn(examples):
 
 # Convert dataset to OAI messages       
 def format_data(sample):
-    prompt= """Create a Short Product description based on the provided ##PRODUCT NAME## and ##CATEGORY## and image. 
-Only return description. The description should be SEO optimized and for a better mobile search experience.
- 
-##PRODUCT NAME##: {product_name}
-##CATEGORY##: {category}"""
-    system_message = "You are an expert product description writer for Amazon."
-
     return {
         "messages": [
             {
                 "role": "system",
-                "content": [{"type": "text", "text": system_message}],
+                "content": [{"type": "text", "text": SYSTEM_MESSAGE}],
             },
             {
                 "role": "user",
                 "content": [
                     {
                         "type": "text",
-                        "text": prompt.format(product_name=sample["Product Name"], category=sample["Category"]),
+                        "text": PROMPT.format(product_name=sample["Product Name"], category=sample["Category"]),
                     },{
                         "type": "image",
                         "image": sample["image"],
@@ -187,3 +190,88 @@ if __name__ == "__main__":
     del model
     del trainer
     torch.cuda.empty_cache()
+
+    sample = {
+        "product_name": "Hasbro Marvel Avengers-Serie Marvel Assemble Titan-Held, Iron Man, 30,5 cm Actionfigur",
+        "catergory": "Toys & Games | Toy Figures & Playsets | Action Figures",
+        "image": "https://m.media-amazon.com/images/I/81+7Up7IWyL._AC_SY300_SX300_.jpg"
+    }
+    
+    # prepare message
+    messages = [{
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "image": sample["image"],
+                },
+                {"type": "text", "text": PROMPT.format(product_name=sample["product_name"], category=sample["catergory"])},
+            ],
+        }
+    ]
+
+    print("[DEBUG] Check messages")
+    print(f"Messages : {messages}")
+
+    model = AutoModelForVision2Seq.from_pretrained(
+        model_id,
+        device_map="auto",
+        # attn_implementation="flash_attention_2", # not supported for training
+        torch_dtype=torch.bfloat16,
+        quantization_config=bnb_config
+    )
+
+    print("-" * 64)
+    def generate_description(sample, model, processor):
+        messages = [
+            {"role": "system", "content": [{"type": "text", "text": SYSTEM_MESSAGE}]},
+            {"role": "user", "content": [
+                {"type": "image","image": sample["image"]},
+                {"type": "text", "text": PROMPT.format(product_name=sample["product_name"], category=sample["catergory"])},
+            ]},
+        ]
+        # Preparation for inference
+        text = processor.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        image_inputs, video_inputs = process_vision_info(messages)
+        inputs = processor(
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            padding=True,
+            return_tensors="pt",
+        )
+        inputs = inputs.to(model.device)
+        # Inference: Generation of the output
+        generated_ids = model.generate(**inputs, max_new_tokens=256, top_p=1.0, do_sample=True, temperature=0.8)
+        generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
+        output_text = processor.batch_decode(
+            generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+        return output_text[0]
+    
+    print("[DEBUG] Check generate description")
+    base_description = generate_description(sample, model, processor)
+    
+    print(f"Base Generated description : {base_description}")
+
+    print("-" * 64)
+
+    fine_tuned_model = AutoModelForVision2Seq.from_pretrained(
+        args.output_dir,
+        device_map="auto",
+        # attn_implementation="flash_attention_2", # not supported for training
+        torch_dtype=torch.bfloat16,
+        quantization_config=bnb_config
+    )
+
+    print("[DEBUG] Check fine-tuned model") 
+
+    fine_tuned_description = generate_description(sample, fine_tuned_model, processor)
+
+    print(f"Fine-tuned Generated description : {fine_tuned_description}")
+
+    print("-" * 64)
+
+    
