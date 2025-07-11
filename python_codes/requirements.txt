@@ -5,3 +5,7 @@ evaluate
 accelerate
 timm
 pyyaml
+bitsandbytes
+trl
+peft
+qwen-vl-utils

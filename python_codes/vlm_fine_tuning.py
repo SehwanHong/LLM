@@ -101,7 +101,6 @@ if __name__ == "__main__":
     # Load model and tokenizer
     model = AutoModelForVision2Seq.from_pretrained(
         model_id,
-        device_map="auto",
         # attn_implementation="flash_attention_2", # not supported for training
         torch_dtype=torch.bfloat16,
         quantization_config=bnb_config
@@ -150,7 +149,6 @@ if __name__ == "__main__":
         warmup_ratio=0.03,                      # warmup ratio based on QLoRA paper
         lr_scheduler_type="constant",           # use constant learning rate scheduler
         push_to_hub=False,                       # push model to hub
-        report_to="tensorboard",                # report metrics to tensorboard
         gradient_checkpointing_kwargs = {"use_reentrant": False}, # use reentrant checkpointing
         dataset_text_field="", # need a dummy field for collator
         dataset_kwargs = {"skip_prepare_dataset": True} # important for collator
@@ -215,7 +213,6 @@ if __name__ == "__main__":
 
     model = AutoModelForVision2Seq.from_pretrained(
         model_id,
-        device_map="auto",
         # attn_implementation="flash_attention_2", # not supported for training
         torch_dtype=torch.bfloat16,
         quantization_config=bnb_config
@@ -260,7 +257,6 @@ if __name__ == "__main__":
 
     fine_tuned_model = AutoModelForVision2Seq.from_pretrained(
         args.output_dir,
-        device_map="auto",
         # attn_implementation="flash_attention_2", # not supported for training
         torch_dtype=torch.bfloat16,
         quantization_config=bnb_config
