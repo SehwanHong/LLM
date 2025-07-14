@@ -4,7 +4,7 @@
 #SBATCH --job-name=dpo_training
 #SBATCH --time=99:00:00
 #SBATCH --partition=hopper
-#SBATCH --nodes=1
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:1
