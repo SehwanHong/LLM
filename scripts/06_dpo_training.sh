@@ -1,7 +1,7 @@
 #! /bin/bash
 
 ## Job Settings
-#SBATCH --job-name=vlm_fine_tuning
+#SBATCH --job-name=dpo_training
 #SBATCH --time=99:00:00
 #SBATCH --partition=hopper
 #SBATCH --nodes=1
@@ -9,10 +9,10 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64gb
-#SBATCH --comment="LLM STUDY - VLM Fine Tuning"
+#SBATCH --comment="LLM STUDY - DPO Training"
 
 ## Output Settings
-#SBATCH --output=./logs/vlm_fine_tuning_%A.log
+#SBATCH --output=./logs/dpo_training_%A.log
 
 ## Container Settings
 #SBATCH --container-image=/purestorage/AILAB/AI_1/shhong/enroot_images/pytorch_2_7_1_cuda12_6_cudnn9_dev.sqsh
@@ -23,4 +23,4 @@
 
 ## Run
 pip install -r requirements.txt
-torchrun --nnodes=$SLURM_NNODES --node_rank=$SLURM_NODEID --nproc_per_node=$SLURM_GPUS_ON_NODE vlm_fine_tuning.py
+torchrun --nnodes=$SLURM_NNODES --node_rank=$SLURM_NODEID --nproc_per_node=$SLURM_GPUS_ON_NODE dpo_training.py
