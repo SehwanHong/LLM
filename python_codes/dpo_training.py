@@ -58,8 +58,9 @@ def parse_args():
     return parser.parse_args()
 
 def main():
+    args = parse_args()
     # --- 1. Fabric 설정 ---
-    logger = WandbLogger(project="dpo_fabric_training", name="dpo_training_intel_orca_fabric")
+    logger = WandbLogger(project="dpo_fabric_training", name=args.run_name)
     slurm_env = SLURMEnvironment()
     fabric = Fabric(
         accelerator="auto",
