@@ -9,3 +9,4 @@ bitsandbytes
 trl
 peft
 qwen-vl-utils
+lightning

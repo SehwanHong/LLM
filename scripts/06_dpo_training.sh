@@ -1,13 +1,13 @@
-#! /bin/bash
+#!/bin/bash
 
 ## Job Settings
 #SBATCH --job-name=dpo_training
 #SBATCH --time=99:00:00
 #SBATCH --partition=hopper
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=1
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=16
-#SBATCH --gpus-per-node=1
+#SBATCH --gpus-per-task=4
 #SBATCH --mem=64gb
 #SBATCH --comment="LLM STUDY - DPO Training"
 
@@ -23,14 +23,4 @@
 
 ## Run
 pip install -r requirements.txt
-
-# Explicitly set rendezvous settings for torchrun
-MASTER_ADDR=$(scontrol show hostnames $SLURM_JOB_NODELIST | head -n 1)
-
-torchrun --nnodes=$SLURM_NNODES \
-         --nproc_per_node=$SLURM_GPUS_ON_NODE \
-         --node_rank=$SLURM_NODEID \
-         --rdzv_backend=c10d \
-         --rdzv_id=$SLURM_JOB_ID \
-         --rdzv_endpoint="${MASTER_ADDR}:29500" \
-         dpo_training.py
+python dpo_training.py --run_name dpo_training_${SLURM_JOB_ID}
