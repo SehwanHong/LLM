@@ -60,6 +60,7 @@ def parse_args():
 def main():
     args = parse_args()
     # --- 1. Fabric 설정 ---
+    fabric.print("Initializing Fabric...")
     logger = WandbLogger(project="dpo_fabric_training", name=args.run_name)
     slurm_env = SLURMEnvironment()
     fabric = Fabric(
@@ -73,6 +74,7 @@ def main():
         ],
     )
     fabric.launch()
+    fabric.print(f"Rank {fabric.global_rank}: Fabric launched.")
 
     # --- 2. 하이퍼파라미터 설정 ---
     model_name = "distilbert/distilgpt2"
@@ -86,17 +88,20 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # --- 3. 모델 및 토크나이저 로드 ---
+    fabric.print(f"Rank {fabric.global_rank}: Loading BNB config.")
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
         bnb_4bit_compute_dtype=torch.bfloat16,
     )
 
+    fabric.print(f"Rank {fabric.global_rank}: Loading policy model.")
     policy_model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=bnb_config,
     )
     
+    fabric.print(f"Rank {fabric.global_rank}: Loading PEFT config.")
     peft_config = LoraConfig(
         target_modules=["c_attn"],
         bias="none",
@@ -104,26 +109,33 @@ def main():
     )
     policy_model = get_peft_model(policy_model, peft_config)
 
+    fabric.print(f"Rank {fabric.global_rank}: Loading reference model.")
     reference_model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=bnb_config,
     )
     
+    fabric.print(f"Rank {fabric.global_rank}: Loading tokenizer.")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-
     # --- 4. 데이터셋 준비 ---
+    fabric.print(f"Rank {fabric.global_rank}: Loading dataset.")
     dataset = load_dataset(dataset_name, split="train")
+    fabric.print(f"Rank {fabric.global_rank}: Dataset loaded.")
+
     train_dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=lambda x: collate_fn(x, tokenizer), shuffle=True)
 
     # --- 5. Fabric으로 모델, 옵티마이저, 데이터 로더 설정 ---
+    fabric.print(f"Rank {fabric.global_rank}: Setting up with Fabric.")
     optimizer = torch.optim.AdamW(policy_model.parameters(), lr=learning_rate)
     policy_model, optimizer, train_dataloader = fabric.setup(policy_model, optimizer, train_dataloader)
     reference_model = fabric.setup_module(reference_model)
+    fabric.print(f"Rank {fabric.global_rank}: Fabric setup complete.")
 
     # --- 6. 학습 루프 ---
+    fabric.print(f"Rank {fabric.global_rank}: Starting training loop.")
     policy_model.train()
     for epoch in range(num_train_epochs):
         for step, batch in enumerate(train_dataloader):
@@ -173,6 +185,7 @@ def main():
                 print(f"Epoch {epoch}, Step {step}, Loss: {loss.item()}")
                 fabric.log_dict({"loss": loss.item()}, step=step)
 
+    fabric.print(f"Rank {fabric.global_rank}: Finished training loop.")
     # --- 7. 모델 저장 ---
     if fabric.global_rank == 0:
         save_path = os.path.join(output_dir, "final_model")
