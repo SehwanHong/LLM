@@ -17,9 +17,16 @@ srun --container-image=/purestorage/AILAB/AI_1/shhong/enroot_images/pytorch_2_7_
      --container-writable \
      --container-workdir=/purestorage/AILAB/AI_1/shhong/LLM/python_codes \
      bash -c "
-     echo 'Installing packages...';
-     pip install -r requirements.txt;
-     echo 'Starting training...';
+     # 0번 프로세스만 패키지를 설치합니다.
+     if [ \$SLURM_PROCID -eq 0 ]; then
+        echo 'Rank 0: Installing packages...';
+        pip install -r requirements.txt;
+     fi
+
+     # 모든 프로세스가 여기에 도달할 때까지 기다립니다 (배리어 동기화).
+     scontrol barrier \$SLURM_JOB_ID ;
+
+     echo \"Starting training on rank \$SLURM_PROCID...\";
      python dpo_training.py --run_name dpo_training_${SLURM_JOB_ID};
-     echo 'Training finished.';
+     echo \"Training finished on rank \$SLURM_PROCID.\";
      "
