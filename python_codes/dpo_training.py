@@ -60,7 +60,6 @@ def parse_args():
 def main():
     args = parse_args()
     # --- 1. Fabric 설정 ---
-    fabric.print("Initializing Fabric...")
     logger = WandbLogger(project="dpo_fabric_training", name=args.run_name)
     slurm_env = SLURMEnvironment()
     fabric = Fabric(
@@ -74,7 +73,7 @@ def main():
         ],
     )
     fabric.launch()
-    fabric.print(f"Rank {fabric.global_rank}: Fabric launched.")
+    fabric.print(f"Rank {fabric.global_rank}: Initializing...")
 
     # --- 2. 하이퍼파라미터 설정 ---
     model_name = "distilbert/distilgpt2"
