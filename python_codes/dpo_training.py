@@ -136,6 +136,7 @@ def main():
     # --- 6. 학습 루프 ---
     fabric.print(f"Rank {fabric.global_rank}: Starting training loop.")
     policy_model.train()
+    global_step = 0
     for epoch in range(num_train_epochs):
         for step, batch in enumerate(train_dataloader):
             # 수동으로 배치 데이터를 GPU로 이동시킵니다.
@@ -180,9 +181,12 @@ def main():
             optimizer.step()
             optimizer.zero_grad()
             
-            if fabric.global_rank == 0 and (step % 10 == 0):
+            if fabric.global_rank == 0 and (global_step % 10 == 0):
                 print(f"Epoch {epoch}, Step {step}, Loss: {loss.item()}")
-                fabric.log_dict({"loss": loss.item()}, step=step)
+            if (global_step % 10 == 0):
+                fabric.log_dict({"loss": loss.item()}, step=global_step)
+            
+            global_step += 1
 
     fabric.print(f"Rank {fabric.global_rank}: Finished training loop.")
     # --- 7. 모델 저장 ---
