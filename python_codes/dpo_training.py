@@ -113,7 +113,6 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    tokenizer = fabric.setup_module(tokenizer)
 
     # --- 4. 데이터셋 준비 ---
     dataset = load_dataset(dataset_name, split="train")
@@ -128,6 +127,9 @@ def main():
     policy_model.train()
     for epoch in range(num_train_epochs):
         for step, batch in enumerate(train_dataloader):
+            # 수동으로 배치 데이터를 GPU로 이동시킵니다.
+            batch = {k: v.to(fabric.device) for k, v in batch.items()}
+
             # 정책 모델 포워드 패스
             policy_chosen_logits = policy_model(
                 input_ids=batch["chosen_input_ids"],
