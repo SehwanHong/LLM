@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=16
-#SBATCH --gpus-per-task=4
+#SBATCH --gpus-per-task=1
 #SBATCH --mem=64gb
 #SBATCH --comment="LLM STUDY - DPO Training"
 #SBATCH --output=./logs/dpo_training_%A.log

@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import lightning as L
 from lightning.fabric.plugins.environments.slurm import SLURMEnvironment
-from lightning.fabric.loggers import WandbLogger
+from lightning.pytorch.loggers import WandbLogger
 from lightning.fabric import Fabric
 import wandb
 import os
@@ -112,6 +112,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+
+    tokenizer = fabric.setup_module(tokenizer)
 
     # --- 4. 데이터셋 준비 ---
     dataset = load_dataset(dataset_name, split="train")
