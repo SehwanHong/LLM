@@ -1,6 +1,6 @@
 ---
-title: "VLM Fine Tuning with Qwen2-VL using Amazon Product Description Dataset"
-date: 2025-07-11
+title: "DPO Training with PyTorch Lightning"
+date: 2025-07-14
 layout: default   # 또는 page, default 등 테마에 따라
 tags: [llm, dpo, fine-tuning, llm, transformers, pytorch-lightning, fabric, ]
 ---
