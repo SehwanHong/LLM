@@ -198,6 +198,32 @@ def main():
 
     if fabric.global_rank == 0:
         wandb.finish()
+    
+    fabric.print(f"Rank {fabric.global_rank}: Finished training.")
+
+    prompt = "What is the capital of France?"
+    fabric.print(f"Rank {fabric.global_rank}: Generating text with Policy Model...")
+    model_input = tokenizer(prompt, return_tensors="pt").to(fabric.device)
+    with torch.no_grad():
+        generated_ids = policy_model.generate(
+            model_input.input_ids,
+            max_new_tokens=100,
+            pad_token_id=tokenizer.eos_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+        fabric.print(f"Rank {fabric.global_rank}: Generated text with Policy Model: {generated_text}")
+
+    fabric.print(f"Rank {fabric.global_rank}: Generating text with Reference Model...")
+    with torch.no_grad():
+        generated_ids = reference_model.generate(
+            model_input.input_ids,
+            max_new_tokens=100,
+            pad_token_id=tokenizer.eos_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+        fabric.print(f"Rank {fabric.global_rank}: Generated text with Reference Model: {generated_text}")
 
 if __name__ == "__main__":
     main()
